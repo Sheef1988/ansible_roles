@@ -1,0 +1,4 @@
+galaxy_info:
+  author: Roman Ashaev
+  description: Ansible role for installation and configuration OpenSearch
+  company: CIT

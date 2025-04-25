@@ -1,0 +1,88 @@
+---
+
+- name: Check lock file already exists
+  ansible.builtin.stat:
+    path: "{{ opensearch_lock_file }}"
+  register: lock_file
+  run_once: True
+
+- name: Recursively change permissions of a directory
+  ansible.builtin.file:
+    path: "{{ opensearch_security_tools }}"
+    recurse: True
+    owner: "{{ opensearch_user }}"
+    group: "{{ opensearch_user }}"
+    mode: 0755
+
+- block: 
+
+#  - name: Generate new admin password's hash
+#    ansible.builtin.shell: "{{ opensearch_security_tools }}/hash.sh -p {{ opensearch_admin_password }}"
+#    environment:
+#      JAVA_HOME: "{{ opensearch_java_home }}"
+#    register: opensearch_hash_password
+#    run_once: True
+#    changed_when: False
+
+##  - name: Установить логин и пароль администратора OpenSearch
+##   ansible.builtin.template:
+##      src: opensearch_internal_users.yml.j2
+##      dest: /etc/opensearch/opensearch_security/internal_users.yml
+##      owner: opensearch
+##      group: opensearch
+##      mode: '0600'
+##    notify: Restart OpenSearch
+
+  - name: Установить логин и пароль администратора OpenSearch
+    ansible.builtin.user:
+      name: "opensearch_admin"
+      password: "{{ 'admin' | password_hash('sha512_crypt') }}"
+      state: present
+
+
+  - name: Update internal users
+    ansible.builtin.template:
+      src: internal_users.yml.j2
+      dest: "{{ opensearch_path_install }}/opensearch-{{ opensearch_version }}/plugins/opensearch-security/securityconfig/internal_users.yml"
+      owner: root
+      group: "{{ opensearch_user }}"
+      mode: '0640'
+
+  - name: Update roles
+    ansible.builtin.template:
+      src: roles.yml.j2
+      dest: "{{ opensearch_path_install }}/opensearch-{{ opensearch_version }}/plugins/opensearch-security/securityconfig/roles.yml"
+      owner: root
+      group: "{{ opensearch_user }}"
+      mode: '0640'
+
+  - name: Update role mapping
+    ansible.builtin.template:
+      src: roles_mapping.yml.j2
+      dest: "{{ opensearch_path_install }}/opensearch-{{ opensearch_version }}/plugins/opensearch-security/securityconfig/roles_mapping.yml"
+      owner: root
+      group: "{{ opensearch_user }}"
+      mode: '0640'
+
+  - name: Update Security configuration
+    ansible.builtin.template:
+      src: config.yml.j2
+      dest: "{{ opensearch_path_install }}/opensearch-{{ opensearch_version }}/plugins/opensearch-security/securityconfig/config.yml"
+      owner: root
+      group: "{{ opensearch_user }}"
+      mode: '0640'
+
+  - name: Apply new configuration
+    ansible.builtin.shell: "{{ opensearch_passwd_apply_cmd }}"
+    environment:
+      JAVA_HOME: "{{ opensearch_java_home }}"
+    register: result
+    changed_when:
+      - '"Done with success" in result.stdout'
+    run_once: True
+
+  - name: Create lock file
+    ansible.builtin.file:
+      path: "{{ opensearch_lock_file }}"
+      state: touch
+  when: not lock_file.stat.exists and opensearch_node_master

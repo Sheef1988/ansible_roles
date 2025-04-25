@@ -1,0 +1,6 @@
+- name: Запуск установки OpenStack
+  become_user: "{{ openstack_user }}"
+  shell: "./stack.sh"
+  args:
+    chdir: "{{ devstack_dir }}"
+

@@ -1,0 +1,31 @@
+---
+# This is the internal user database
+# The hash value is a bcrypt hash and can be generated with plugin/tools/hash.sh
+
+_meta:
+  type: "internalusers"
+  config_version: 2
+
+# Define your internal users here
+
+admin:
+  hash: "{{ opensearch_hash_password.stdout }}"
+  reserved: true
+  backend_roles:
+  - "admin"
+  description: "admin user"
+
+kibanaserver:
+  hash: "$2y$12$pktAe/W7eJppLg7cyNp7s.NGffJkCXUKswqayt/6Fz9sj5ECt6j9a"
+  reserved: true
+  description: "kibanaserver user"
+
+fluentd:
+  hash: "$2y$12$mfkNHqbsjJLKhfWgkKnQ2OzUlZxcknCqgMw85ZqtvDxHcq0riwOtu"
+  reserved: false
+  backend_roles:
+  - "fluentd"
+  description: "fluentd user"
+
+
+

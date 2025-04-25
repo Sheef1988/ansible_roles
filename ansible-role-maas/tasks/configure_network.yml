@@ -1,0 +1,8 @@
+---
+- name: Включаем DHCP в MAAS
+  command: maas {{ maas_admin_user }} maas set-config name=enable_dhcp value=true
+
+- name: Настраиваем диапазон DHCP
+  command: >
+    maas {{ maas_admin_user }} dhcp-snippet update 1 "{{ lookup('template', 'dhcp-snippet.json.j2') }}"
+

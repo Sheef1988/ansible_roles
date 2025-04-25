@@ -1,0 +1,85 @@
+---
+- name: Create prometheus user
+  user:
+    name: "{{ prometheus_user }}"
+    system: true
+    shell: "/sbin/nologin"
+    comment: "{{ prometheus_user }} nologin user"
+    createhome: false
+    state: present
+
+- name: Install prometheus
+  unarchive:
+    src: "{{ prometheus_download_url }}"
+    dest: "{{ prometheus_dir }}"
+    remote_src: true
+    owner: "root"
+    group: "root"
+    mode: "0755"
+    extra_opts:
+      - "--strip-components"
+      - "1"
+      - "--wildcards"
+      - "*/prometheus"
+      - "*/promtool"
+  notify: restart prometheus
+
+- name: Create directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ prometheus_user }}"
+    group: "{{ prometheus_user }}"
+    mode: "0775"
+  loop:
+    - "{{ prometheus_datadir }}"
+    - "{{ prometheus_etcdir }}"
+    - "{{ prometheus_etcdir }}/rules"
+
+- name: Copy systemd init file
+  template:
+    src: prometheus.service.j2
+    dest: /etc/systemd/system/prometheus.service
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  notify: restart prometheus
+
+- name: Create alerts config files
+  copy:
+    src: "{{ item }}"
+    dest: "{{ prometheus_etcdir }}/rules/"
+    owner: "{{ prometheus_user }}"
+    group: "{{ prometheus_user }}"
+    mode: "0644"
+  with_fileglob:
+    - files/rules/*.yml
+
+- name: Create config file
+  template:
+    src: prometheus.yml.j2
+    dest: "{{ prometheus_etcdir }}/prometheus.yml"
+    owner: "{{ prometheus_user }}"
+    group: "{{ prometheus_user }}"
+    mode: "0644"
+  notify: reload prometheus
+
+- name: Add firewalld rule for prometheus
+  ansible.posix.firewalld:
+    port: "9090/tcp"
+    permanent: true
+    state: enabled
+  notify: reload firewalld
+
+- name: Force all notified handlers to run at this point, not waiting for normal sync points
+  meta: flush_handlers
+
+- name: Check if prometheus is accessible
+  uri:
+    url: "{{ prometheus_check_address }}"
+    method: GET
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 20
+  delay: 5

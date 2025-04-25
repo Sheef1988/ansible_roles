@@ -1,0 +1,84 @@
+---
+- name: Устанавливаем PostgreSQL 16
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - postgresql-16
+    - postgresql-client-16
+    - python3-psycopg2  # Для работы с PostgreSQL в Ansible
+  become: yes
+
+- name: Изменяем метод аутентификации в PostgreSQL на md5
+  lineinfile:
+    path: /etc/postgresql/16/main/pg_hba.conf
+    regexp: '^local\s+all\s+postgres\s+peer'
+    line: 'local   all             postgres                                md5'
+  notify: Перезапустить PostgreSQL
+
+- name: Перезапускаем PostgreSQL для применения изменений
+  systemd:
+    name: postgresql
+    state: restarted
+  become: yes
+#  when: ansible_facts.os.family == "Ubuntu"
+
+- name: Устанавливаем пароль для пользователя postgres
+  postgresql_user:
+    name: postgres
+    password: "{{ postgresql_admin_password }}"
+    role_attr_flags: LOGIN
+    state: present
+    login_user: postgres
+    login_password: "{{ postgresql_admin_password }}"
+  become: yes
+
+
+#- name: Устанавливаем пароль для пользователя postgres
+#  postgresql_user:
+#    name: postgres
+#    password: "{{ postgresql_admin_password }}"
+#    role_attr_flags: LOGIN
+#    state: present
+#    login_user: postgres
+#    login_password: "{{ postgresql_admin_password }}"
+#  become: yes
+
+- name: Создаём базу данных MAAS
+  postgresql_db:
+    name: "{{ maas_db_name }}"
+    state: present
+    login_user: "{{ postgresql_admin_user }}"
+    login_password: "{{ postgresql_admin_password }}"
+
+
+
+#- name: Устанавливаем psycopg2
+#  apt:
+#    name: python3-psycopg2
+#    state: present
+
+#- name: Устанавливаем PostgreSQL
+#  apt:
+#    name: postgresql
+#    state: present
+
+#- name: Создаём базу данных MAAS
+#  postgresql_db:
+#    name: "{{ maas_db_name }}"
+#    state: present
+#    login_user: "{{ postgresql_admin_user }}"
+#    login_password: "{{ postgresql_admin_password }}"
+
+#- name: Создаём базу данных MAAS
+#  postgresql_db:
+#    name: "{{ maas_db_name }}"
+#    state: present
+
+#- name: Создаём пользователя базы данных
+#  postgresql_user:
+#    db: "{{ maas_db_name }}"
+#    name: "{{ maas_db_user }}"
+#    password: "{{ maas_db_password }}"
+#    priv: "ALL"
+

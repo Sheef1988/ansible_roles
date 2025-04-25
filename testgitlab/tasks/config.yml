@@ -1,0 +1,17 @@
+---
+- name: Configure gitlab.rb
+  template:
+    src: gitlab.rb.j2
+    dest: /opt/gitlab/config/gitlab.rb
+  notify:
+    - Restart GitLab
+
+- name: Check Docker containers status
+  command: docker ps
+  register: docker_ps
+  ignore_errors: yes
+
+- name: Display Docker containers status
+  debug:
+    var: docker_ps.stdout
+

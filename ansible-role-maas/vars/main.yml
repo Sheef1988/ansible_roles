@@ -1,0 +1,24 @@
+---
+maas_db_name: "maasdb"
+maas_db_user: "maasuser"
+maas_db_password: "maaspassword"
+postgresql_admin_user: "postgres"
+postgresql_admin_password: "password"  # Убедитесь, что это безопасный пароль
+maas_admin_user: "admin"
+maas_admin_password: "admin123"
+maas_admin_email: "plotnikov74@bk.ru"
+maas_subnet: "192.168.1.0/24"
+
+
+
+#maas_db_name: "maasdb"
+#maas_db_user: "maasuser"
+#maas_db_password: "maaspassword"
+#maas_admin_user: "admin"
+#maas_admin_password: "admin123"
+#maas_admin_email: "admin@example.com"
+#maas_subnet: "192.168.1.0/24"
+
+#postgresql_admin_user: "postgres"
+#postgresql_admin_password: "securepassword"
+

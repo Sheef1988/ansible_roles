@@ -1,0 +1,55 @@
+---
+# tasks file for ansible-role-opensearch-dashboards
+
+- name: Create OpenSearch Dashboards user
+  ansible.builtin.user:
+    name: "{{ dashboards_user }}"
+    state: present
+    shell: /sbin/nologin
+    system: True
+    create_home: False
+
+- name: Ensure OpenSearch Dashboards dirs exists
+  ansible.builtin.file:
+    path: "{{ dashboards_path_install }}"
+    owner: "{{ dashboards_user }}"
+    group: "{{ dashboards_user }}"
+    mode: 0755
+    state: directory
+
+- name: Download OpenSearch Dashboards
+  ansible.builtin.unarchive:
+    src: "{{ dashboards_release }}"
+    dest: "{{ dashboards_path_install }}"
+    owner: "{{ dashboards_user }}"
+    group: "{{ dashboards_user }}"
+    remote_src: True
+    creates: "{{ dashboards_path_install }}/opensearch-dashboards-{{ dashboards_version }}"
+    extra_opts:
+    - --transform
+    - s/^opensearch-dashboards-{{ dashboards_version }}-linux-x64/opensearch-dashboards-{{ dashboards_version }}/
+
+- name: Configure OpenSearch Dashboards
+  ansible.builtin.template:
+    src: opensearch_dashboards.yml.j2
+    dest: "{{ dashboards_path_install }}/opensearch-dashboards-{{ dashboards_version }}/config/opensearch_dashboards.yml"
+    owner: "{{ dashboards_user }}"
+    group: "{{ dashboards_user }}"
+    mode: 0660
+  notify: restart opensearch-dashboards
+
+- name: Copy systemd template
+  ansible.builtin.template:
+    src: opensearch-dashboards.service.j2
+    dest: /etc/systemd/system/opensearch-dashboards.service
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart opensearch-dashboards
+
+#- name: Add firewalld rule for OpenSearch Dashboards
+#  ansible.posix.firewalld:
+#    port: "{{ dashboards_server_port }}/tcp"
+#    permanent: True
+#    state: enabled
+#  notify: reload firewalld

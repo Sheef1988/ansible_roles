@@ -1,0 +1,20 @@
+global:
+  scrape_interval: "{{ prometheus_global_scrape_interval }}"
+
+remote_write:
+  - url: "{{ prometheus_victoria_url | trim }}"
+    queue_config:
+      max_samples_per_send: {{ prometheus_victoria_max_samples_per_send }}
+      capacity: {{ prometheus_victoria_capacity }}
+      max_shards: {{ prometheus_victoria_max_shards }}
+
+rule_files:
+  - "{{ prometheus_etcdir }}/rules/*.yml"
+
+alerting:
+  alertmanagers:
+    - scheme: "http"
+      static_configs:
+        - targets: {{ prometheus_alertmanager_targets }}
+
+{{ prometheus_scrape_configs | to_yaml }}

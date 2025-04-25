@@ -1,0 +1,12 @@
+- name: Загрузка образа Ubuntu
+  command: openstack image create "Ubuntu22.04" --file jammy-server-cloudimg-amd64.img --disk-format qcow2 --container-format bare --public
+
+- name: Создание пары SSH-ключей
+  command: openstack keypair create --public-key ~/.ssh/id_rsa.pub mykey
+
+- name: Создание Flavor (размер ВМ)
+  command: openstack flavor create --ram 2048 --disk 20 --vcpus 2 small
+
+- name: Создание тестовой ВМ
+  command: openstack server create --flavor small --image "Ubuntu22.04" --nic net-id=$(openstack network list | awk '/ private / {print $2}') --key-name mykey ubuntu-test
+

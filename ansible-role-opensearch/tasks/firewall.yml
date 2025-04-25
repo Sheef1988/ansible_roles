@@ -1,0 +1,15 @@
+---
+
+- name: Add firewalld rule for opensearch http
+  ansible.posix.firewalld:
+    port: "{{ opensearch_http_port }}/tcp"
+    permanent: True
+    state: enabled
+  notify: reload firewalld
+
+- name: Add firewalld rule for opensearchsearch discovery
+  ansible.posix.firewalld:
+    port: "9300-9305/tcp"
+    permanent: True
+    state: enabled
+  notify: reload firewalld

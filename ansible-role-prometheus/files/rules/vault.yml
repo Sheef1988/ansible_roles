@@ -1,0 +1,23 @@
+groups:
+  - name: Vault rules
+    rules:
+    - alert: VaultDown
+      expr: up{job="vault"} == 0
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Vault {{ $labels.instance }} down"
+        description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 2 minutes."
+    - alert: VaultSealed
+      expr: vault_core_unsealed == 0
+      labels:
+        severity: critical
+      annotations:
+        summary: "Instance {{ $labels.instance }} sealed"
+    - alert: VaultTooManyNewLeases
+      expr: delta(vault_expire_num_leases[5m]) > 100
+      labels:
+        severity: info
+      annotations:
+        summary: "Too many new leases {{ $labels.instance }}"

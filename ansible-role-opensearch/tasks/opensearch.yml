@@ -1,0 +1,71 @@
+---
+
+
+
+- name: Create OpenSearch user
+  ansible.builtin.user:
+    name: "{{ opensearch_user }}"
+    state: present
+    shell: /sbin/nologin
+    system: True
+    create_home: False
+
+- name: Ensure OpenSearch dirs exists
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: "{{ opensearch_user }}"
+    group: "{{ opensearch_user }}"
+    mode: 0755
+    state: directory
+  loop:
+    - "{{ opensearch_path_data }}"
+    - "{{ opensearch_path_logs }}"
+    - "{{ opensearch_path_install }}"
+    - "{{ opensearch_path_conf }}"
+
+- name: Download OpenSearch
+  ansible.builtin.unarchive:
+    src: "{{ opensearch_release }}"
+    dest: "{{ opensearch_path_install }}"
+    owner: "{{ opensearch_user }}"
+    group: "{{ opensearch_user }}"
+    remote_src: True
+    creates: "{{ opensearch_path_install }}/opensearch-{{ opensearch_version }}"
+
+- name: Configure OpenSearch
+  ansible.builtin.template:
+    src: opensearch.yml.j2
+    dest: "{{ opensearch_path_install }}/opensearch-{{ opensearch_version }}/config/opensearch.yml"
+    owner: "{{ opensearch_user }}"
+    group: "{{ opensearch_user }}"
+    mode: 0660
+  notify: restart opensearch
+
+- name: Configure JVM
+  ansible.builtin.template:
+    src: jvm.options.j2
+    dest: "{{ opensearch_path_install }}/opensearch-{{ opensearch_version }}/config/jvm.options"
+    owner: "{{ opensearch_user }}"
+    group: "{{ opensearch_user }}"
+    mode: 0660
+  notify: restart opensearch
+
+#- name: Copy SSL certificates
+#  ansible.builtin.copy:
+#    content: "{{ item.content }}"
+#    dest: "{{ opensearch_path_install }}/opensearch-{{ opensearch_version }}/config/{{ item.name }}"
+#    owner: "{{ opensearch_user }}"
+#    group: "{{ opensearch_user }}"
+#    mode: 0640
+#  loop: "{{ certificates }}"
+# # no_log: True
+#  notify: restart opensearch
+
+- name: Copy systemd template
+  ansible.builtin.template:
+    src: opensearch.service.j2
+    dest: /etc/systemd/system/opensearch.service
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart opensearch

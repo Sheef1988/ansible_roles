@@ -1,0 +1,13 @@
+---
+- name: Установка MAAS
+  include_tasks: install_maas.yml
+
+- name: Настройка базы данных PostgreSQL
+  include_tasks: configure_db.yml
+
+- name: Инициализация MAAS
+  include_tasks: initialize_maas.yml
+
+- name: Настройка сети (DHCP + публичные IP)
+  include_tasks: configure_network.yml
+

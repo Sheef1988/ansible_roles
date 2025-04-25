@@ -1,0 +1,21 @@
+- name: Создание внешней сети
+  command: openstack network create --external --provider-physical-network provider --provider-network-type flat public
+
+- name: Создание подсети
+  command: openstack subnet create --network public --allocation-pool start={{ floating_pool_start }},end={{ floating_pool_end }} --dns-nameserver 8.8.8.8 --gateway {{ public_gateway }} --subnet-range {{ floating_range }} public_subnet
+
+- name: Создание роутера
+  command: openstack router create public_router
+
+- name: Назначение внешнего шлюза
+  command: openstack router set --external-gateway public public_router
+
+- name: Создание частной сети
+  command: openstack network create private
+
+- name: Создание подсети для частной сети
+  command: openstack subnet create --network private --subnet-range 10.0.0.0/24 private_subnet
+
+- name: Привязка сети к роутеру
+  command: openstack router add subnet public_router private_subnet
+

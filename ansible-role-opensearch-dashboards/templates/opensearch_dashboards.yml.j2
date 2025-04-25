@@ -1,0 +1,33 @@
+# Copyright OpenSearch Contributors
+# SPDX-License-Identifier: Apache-2.0
+
+
+# Description:
+# Default configuration for OpenSearch Dashboards
+server.port: {{ dashboards_server_port }}
+server.host: {{ dashboards_server_host }}
+server.name: {{ dashboards_server_name }}
+
+opensearch.hosts: ["{{ dashboards_os_hosts }}"]
+opensearch.ssl.verificationMode: none
+opensearch.username: {{ dashboards_os_username }}
+opensearch.password: {{ dashboards_os_password }}
+opensearch.requestHeadersWhitelist: [ authorization,securitytenant ]
+
+opensearch_security.multitenancy.enabled: true
+opensearch_security.multitenancy.tenants.preferred: ["Private", "Global"]
+opensearch_security.readonly_mode.roles: ["kibana_read_only"]
+# Use this setting if you are running kibana without https
+opensearch_security.cookie.secure: false
+
+{% if dashboards_openid_enabled %}
+##Openid
+opensearch_security.auth.type: "openid"
+opensearch_security.openid.scope: "openid profile email groups:name:by_app"
+opensearch_security.openid.base_redirect_url: "{{ dashboards_base_redirect_url }}"
+opensearch_security.openid.connect_url: "{{ dashboards_connect_url }}"
+opensearch_security.openid.client_id: "{{ dashboards_client_id }}"
+opensearch_security.openid.client_secret: "{{ dashboards_client_secret }}"
+opensearch_security.multitenancy.tenants.enable_private: false
+opensearch_security.multitenancy.tenants.enable_global: false
+{% endif %}

@@ -1,0 +1,57 @@
+---
+# tasks file for ansible-role-consul
+
+- name: Add Hashicorp Stable repository
+  yum_repository:
+    name: hashicorp
+    description: Hashicorp Stable - $basearch
+    enabled: "{{ consul_hashi_repo_enabled }}"
+    baseurl: https://repository.int.platform.tatar.ru/repository/hashicorp/$releasever/$basearch/stable
+    gpgcheck: True
+    gpgkey: https://repository.int.platform.tatar.ru/repository/keys/hashicorp/gpg
+
+- name: Install Consul
+  dnf:
+    name: consul-{{ consul_version }}
+    state: installed
+  notify:
+    - restart consul
+
+- name: Ensure that directories exist
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: consul
+    group: consul
+    mode: "{{ item.perms }}"
+  loop:
+    - { path: '{{ consul_datadir }}', perms: '0755' }
+    - { path: '{{ consul_confdir }}', perms: '0775' }
+
+
+- name: Copy config template
+  template:
+    src: consul.hcl.j2
+    dest: /etc/consul.d/consul.hcl
+    owner: consul
+    group: consul
+    mode: '0664'
+  notify:
+    - reload consul
+
+- name: Register services
+  template:
+    src: services.hcl.j2
+    dest: /etc/consul.d/services.hcl
+    owner: consul
+    group: consul
+    mode: '0644'
+  when: consul_services|length > 0
+  notify:
+    - reload consul
+
+- name: Include firewall tasks
+  include_tasks: firewall.yml
+
+- name: Force all notified handlers to run at this point
+  meta: flush_handlers

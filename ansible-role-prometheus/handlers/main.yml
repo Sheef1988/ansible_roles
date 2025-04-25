@@ -1,0 +1,23 @@
+---
+- name: Ensure prometheus service is restarted and enabled
+  become: true
+  systemd:
+    daemon_reload: true
+    name: prometheus
+    state: restarted
+    enabled: true
+  listen: restart prometheus
+
+- name: Ensure prometheus service is reloaded and enabled
+  become: true
+  systemd:
+    name: prometheus
+    state: reloaded
+    enabled: true
+  listen: reload prometheus
+
+- name: Ensure firewalld service reloaded
+  systemd:
+    name: firewalld
+    state: reloaded
+  listen: reload firewalld

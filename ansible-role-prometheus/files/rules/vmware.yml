@@ -1,0 +1,66 @@
+groups:
+- name: vmware
+  rules:
+  # - alert: VMWarnMemoryUsage
+  #   expr: ((vmware_vm_mem_usage_average / 100) >= 90) and ((vmware_vm_mem_usage_average / 100) < 95)
+  #   for: 30m
+  #   labels:
+  #     severity: warning
+  #   annotations:
+  #     summary: 'High memory usage on {{ $labels.instance }}: {{ $value | printf "%.2f" }}%'
+  # - alert: VMCritMemoryUsage
+  #   expr: ((vmware_vm_mem_usage_average / 100) >= 95)
+  #   for: 5m
+  #   labels:
+  #     severity: critical
+  #   annotations:
+  #     summary: 'Very High memory usage on {{ $labels.instance }}: {{ $value | printf "%.2f" }}%'
+  # - alert: VMWarnNumberSnapshots
+  #   expr: (vmware_vm_snapshots >= 3)
+  #   for: 30m
+  #   labels:
+  #     severity: warning
+  #   annotations:
+  #     summary: 'High snapshots number on {{ $labels.host_name }}/{{ $labels.vm_name }}: {{ $value }}'
+  # - alert: VMCritNumberSnapshots
+  #   expr: (vmware_vm_snapshots >= 5)
+  #   for: 30m
+  #   labels:
+  #     severity: critical
+  #   annotations:
+  #     summary: 'Very high snapshot number on {{ $labels.host_name }}/{{ $labels.vm_name }}: {{ $value }}'
+  - alert: DSWarnUsage
+    expr: ((vmware_datastore_capacity_size - vmware_datastore_freespace_size) / vmware_datastore_capacity_size) * 100 > 90
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: 'High datastore space usage {{ $labels.ds_name }}: {{ $value | printf "%.2f" }}%'
+  # - alert: HostWarnCpuUsage
+  #   expr: ((vmware_host_cpu_usage / vmware_host_cpu_max) * 100 >= 90) and ((vmware_host_cpu_usage / vmware_host_cpu_max) * 100 < 95)
+  #   for: 5m
+  #   labels:
+  #     severity: warning
+  #   annotations:
+  #     summary: 'High cpu usage on {{ $labels.instance }}: {{ $value | printf "%.2f" }}%'
+  # - alert: HostCritCpuUsage
+  #   expr: (vmware_host_cpu_usage / vmware_host_cpu_max) * 100 >= 95
+  #   for: 5m
+  #   labels:
+  #     severity: critical
+  #   annotations:
+  #     summary: 'Very High cpu usage on {{ $labels.instance }}: {{ $value | printf "%.2f" | humanizePercentage }}%'
+  # - alert: HostWarnMemoryUsage
+  #   expr: ((vmware_host_memory_usage / vmware_host_memory_max) * 100 >= 85) and ((vmware_host_memory_usage / vmware_host_memory_max) * 100 < 90)
+  #   for: 5m
+  #   labels:
+  #     severity: warning
+  #   annotations:
+  #     summary: 'High memory usage on cluster {{ $labels.instance }} host {{ $labels.host_name }}: {{ $value | printf "%.2f" }}%'
+  # - alert: HostCritMemoryUsage
+  #   expr: (vmware_host_memory_usage / vmware_host_memory_max) * 100 >= 90
+  #   for: 5m
+  #   labels:
+  #     severity: critical
+  #   annotations:
+  #     summary: 'Very High memory usage on cluster {{ $labels.instance }} host {{ $labels.host_name }}: {{ $value | printf "%.2f" }}%'

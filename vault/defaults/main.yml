@@ -1,0 +1,29 @@
+---
+# defaults file for ansible-role-vault
+
+vault_version: 1.12.4
+vault_cluster_name: dtc
+vault_max_lease_ttl: 768h
+vault_default_lease_ttl: 768h
+vault_cluster_disable: False
+vault_cluster_addr: "{{ vault_protocol }}://{{ vault_address }}:{{ (vault_port | int) + 1 }}"
+vault_api_addr: "{{ vault_protocol }}://{{ vault_address }}:{{ vault_port }}"
+vault_address: "{{ ansible_default_ipv4.address }}"
+vault_port: 8200
+vault_tls_disable: True
+vault_consul: 127.0.0.1:8500
+vault_consul_path: vault/
+vault_consul_service: vault
+vault_consul_scheme: http
+vault_unseal: false
+vault_secret_shares: 5
+vault_secret_threshold: 3
+vault_backend: raft
+vault_raft_data_path: /srv/vault
+vault_raft_node_id: "{{ ansible_nodename }}"
+vault_disable_mlock: True
+vault_service_registration_enabled: True
+vault_telemetry_enabled: True
+vault_telemetry_prometheus_retention_time: 24h
+vault_telemetry_disable_hostname: True
+vault_telemetry_unauthenticated_metrics_access: True

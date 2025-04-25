@@ -1,0 +1,39 @@
+{% for item in consul_services %}
+services {
+  id = "{{ item.id }}"
+  name = "{{ item.name }}"
+  address = "{{ item.address }}"
+  port = {{ item.port }}
+  tags = {{ item.tags | replace("'", '"' ) }}
+  {% if item.meta is defined %}
+  meta = {
+  {% for meta in item.meta %}
+    {{ meta.key }} = "{{ meta.value }}"
+  {% endfor %}
+  }
+  {% endif %}
+
+  {% if item.tcp_checks is defined -%}
+  {% for check in item.tcp_checks -%}
+  checks = {
+    name = "{{ check.name }}"
+    tcp = "{{ check.tcp }}"
+    interval = "{{ check.interval }}"
+    timeout = "{{ check.timeout }}"
+  }
+  {% endfor %}
+  {% endif %}
+
+  {% if item.http_checks is defined -%}
+  {% for check in item.http_checks -%}
+  checks = {
+    name = "{{ check.name }}"
+    http = "{{ check.http }}"
+    tls_skip_verify = {{ check.tls_skip_verify | bool | lower }}
+    interval = "{{ check.interval }}"
+    timeout = "{{ check.timeout }}"
+  }
+  {% endfor %}
+  {% endif %}
+}
+{% endfor %}

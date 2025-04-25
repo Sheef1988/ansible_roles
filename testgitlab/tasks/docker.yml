@@ -1,0 +1,31 @@
+---
+- name: Create directories for GitLab
+  file:
+    path: "/opt/gitlab/{{ item }}"
+    state: directory
+    mode: '0755'
+  with_items:
+    - config
+    - logs
+    - data
+
+- name: Copy docker-compose.yml to target machine
+  copy:
+    src: docker-compose.yml
+    dest: /opt/gitlab/docker-compose.yml
+    mode: '0644'
+
+- name: Install Docker Compose if not installed
+  command: curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  when: ansible_facts['distribution'] == 'Ubuntu'
+
+- name: Make docker-compose executable
+  file:
+    path: /usr/local/bin/docker-compose
+    mode: '0755'
+
+- name: Run Docker Compose to start GitLab
+  command: docker-compose -f /opt/gitlab/docker-compose.yml up -d --build
+  args:
+    chdir: /opt/gitlab
+

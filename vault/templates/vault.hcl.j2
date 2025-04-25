@@ -1,0 +1,49 @@
+cluster_name = "{{ vault_cluster_name }}"
+max_lease_ttl = "{{ vault_max_lease_ttl }}"
+default_lease_ttl = "{{ vault_default_lease_ttl }}"
+
+disable_clustering = "{{ vault_cluster_disable | bool | lower }}"
+cluster_addr = "{{ vault_cluster_addr }}"
+api_addr = "{{ vault_api_addr }}"
+
+
+listener "tcp" {
+  address = "{{ vault_address }}:{{ vault_port }}"
+  tls_disable = "{{ vault_tls_disable | bool | lower }}"
+  {% if vault_telemetry_enabled -%}
+  telemetry {
+    unauthenticated_metrics_access = {{ vault_telemetry_unauthenticated_metrics_access | bool | lower }}
+  }
+  {% endif %}
+}
+
+{% if vault_backend == 'consul' -%}
+storage "consul" {
+  address = "{{ vault_consul }}"
+  path = "{{ vault_consul_path }}"
+  service = "{{ vault_consul_service }}"
+  scheme = "{{ vault_consul_scheme }}"
+}
+{% elif vault_backend == 'raft' -%}
+storage "raft" {
+  path = "{{ vault_raft_data_path }}"
+  node_id = "{{ vault_raft_node_id }}"
+}
+
+{% if vault_service_registration_enabled -%}
+service_registration "consul" {
+  address = "{{ vault_consul }}"
+  service = "{{ vault_consul_service }}"
+}
+{% endif %}
+
+disable_mlock = {{ vault_disable_mlock | bool | lower }}
+{% endif %}
+ui = true
+
+{% if vault_telemetry_enabled -%}
+telemetry {
+  prometheus_retention_time = "{{ vault_telemetry_prometheus_retention_time }}"
+  disable_hostname = {{ vault_telemetry_disable_hostname | bool | lower }}
+}
+{% endif %}

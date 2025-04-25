@@ -1,0 +1,5 @@
+---
+# vars file for ansible-role-vault
+
+vault_repo_url: https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+vault_protocol: "{% if vault_tls_disable %}http{% else %}https{% endif %}"

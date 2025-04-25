@@ -1,0 +1,37 @@
+---
+
+#- name: Add firewalld rule for vault port
+#  ansible.posix.firewalld:
+#    port: "{{ vault_port }}/tcp"
+#    permanent: true
+#    state: enabled
+#  notify: reload firewalld
+#
+#- name: Add firewalld rule for vault cluster port
+#  ansible.posix.firewalld:
+#    port: "{{ (vault_port | int) + 1 }}/tcp"
+#    permanent: true
+#    state: enabled
+#  notify: reload firewalld
+
+- name: Install firewalld package
+  dnf:
+    name: firewalld
+    state: present
+
+- name: Ensure firewalld service is running
+  systemd:
+    name: firewalld
+    state: started
+    enabled: true
+
+- name: Add firewall rule for vault port
+  command: firewall-cmd --zone=public --add-port={{ vault_port }}/tcp --permanent
+  notify: reload firewalld
+
+- name: Add firewall rule for vault cluster port
+  command: firewall-cmd --zone=public --add-port={{ (vault_port | int) + 1 }}/tcp --permanent
+  notify: reload firewalld
+
+- name: Reload firewalld to apply changes
+  command: firewall-cmd --reload

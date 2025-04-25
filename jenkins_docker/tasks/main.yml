@@ -1,0 +1,74 @@
+---
+- name: Обновление apt и установка зависимостей
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+  loop:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - gnupg
+    - lsb-release
+
+- name: Добавление GPG ключа Docker
+  shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+#  args:
+#    warn: false
+
+- name: Добавление репозитория Docker
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+    state: present
+
+#- name: Добавление Docker GPG ключа
+#  apt_key:
+#    url: https://download.docker.com/linux/ubuntu/gpg
+#    state: present
+
+#- name: Добавление Docker репозитория
+#  apt_repository:
+#    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+#    state: present
+#    filename: docker
+
+- name: Установка Docker
+  apt:
+    name: docker-ce
+    state: latest
+    update_cache: true
+
+- name: Убедимся, что Docker запущен
+  service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Создание volume директории Jenkins
+  file:
+    path: /var/jenkins_home
+    state: directory
+    owner: 1000  # Jenkins UID в контейнере
+    group: 1000
+    mode: '0755'
+
+- name: Запуск Jenkins контейнера
+  docker_container:
+    name: "{{ jenkins_container_name }}"
+    image: "{{ jenkins_image }}"
+    state: started
+    restart_policy: always
+    ports: "{{ jenkins_ports }}"
+    volumes: "{{ jenkins_volumes }}"
+
+- name: Разрешение входящего трафика на порты Jenkins (если используется UFW)
+  become: true
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop:
+    - 8080
+    - 50000
+  when: ansible_facts.os_family == 'Debian'
+

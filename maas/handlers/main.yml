@@ -1,0 +1,13 @@
+# handlers/main.yml
+- name: Restart MAAS service
+  service:
+    name: maas-regiond
+    state: restarted
+  become: yes
+
+- name: Restart libvirt service
+  service:
+    name: libvirtd
+    state: restarted
+  become: yes
+

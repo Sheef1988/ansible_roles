@@ -1,0 +1,7 @@
+admin:
+  hash: "{{ 'SuperSecretPass123' | password_hash('admin', 12) }}"
+  reserved: true
+  backend_roles:
+    - "admin"
+  description: "Admin user"
+

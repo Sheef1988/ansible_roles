@@ -1,0 +1,12 @@
+---
+- name: Перезапустить MAAS
+  systemd:
+    name: snap.maas.supervisor
+    state: restarted
+
+- name: Перезапустить PostgreSQL
+  systemd:
+    name: postgresql
+    state: restarted
+  become: yes
+

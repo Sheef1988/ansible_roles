@@ -1,0 +1,136 @@
+groups:
+  - name: Network rules
+    rules:
+    - alert: InstanceDown
+      expr: up == 0
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Instance {{ $labels.instance }} down"
+        description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 2 minutes."
+
+    - alert: HostUnusualNetworkThroughputIn
+      expr: sum by (instance) (irate(node_network_receive_bytes_total[2m])) / 1024 / 1024 > 100
+      for: 5m
+      labels:
+        severity: info
+      annotations:
+        summary: "Host unusual network throughput in (instance {{ $labels.instance }})"
+        description: "Host network interfaces are probably receiving too much data (> 100 MB/s)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: HostUnusualNetworkThroughputOut
+      expr: sum by (instance) (irate(node_network_transmit_bytes_total[2m])) / 1024 / 1024 > 100
+      for: 5m
+      labels:
+        severity: info
+      annotations:
+        summary: "Host unusual network throughput out (instance {{ $labels.instance }})"
+        description: "Host network interfaces are probably sending too much data (> 100 MB/s)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: HostNetworkReceiveErrors
+      expr: increase(node_network_receive_errs_total[5m]) > 0
+      for: 5m
+      labels:
+        severity: info
+      annotations:
+        summary: "Host Network Receive Errors (instance {{ $labels.instance }})"
+        description: "{{ $labels.instance }} interface {{ $labels.device }} has encountered {{ printf \"%.0f\" $value }} receive errors in the last five minutes.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: HostNetworkTransmitErrors
+      expr: increase(node_network_transmit_errs_total[5m]) > 0
+      for: 5m
+      labels:
+        severity: info
+      annotations:
+        summary: "Host Network Transmit Errors (instance {{ $labels.instance }})"
+        description: "{{ $labels.instance }} interface {{ $labels.device }} has encountered {{ printf \"%.0f\" $value }} transmit errors in the last five minutes.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+  - name: Filesystem rules
+    rules:
+    - alert: HostOutOfDiskSpace
+      expr: (node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes < 10
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Host out of disk space (instance {{ $labels.instance }})"
+        description: "{{ $labels.mountpoint }} is almost full (< 10% left)\n VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: HostOutOfInodes
+      expr: node_filesystem_files_free{mountpoint ="/"} / node_filesystem_files{mountpoint ="/"} * 100 < 10
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Host out of inodes (instance {{ $labels.instance }})"
+        description: "Disk is almost running out of available inodes (< 10% left)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: HostUnusualDiskReadLatency
+      expr: rate(node_disk_read_time_seconds_total[1m]) / rate(node_disk_reads_completed_total[1m]) > 100
+      for: 5m
+      labels:
+        severity: info
+      annotations:
+        summary: "Host unusual disk read latency (instance {{ $labels.instance }})"
+        description: "Disk latency is growing (read operations > 100ms)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: HostUnusualDiskWriteLatency
+      expr: rate(node_disk_write_time_seconds_total[1m]) / rate(node_disk_writes_completed_total[1m]) > 100
+      for: 5m
+      labels:
+        severity: info
+      annotations:
+        summary: "Host unusual disk write latency (instance {{ $labels.instance }})"
+        description: "Disk latency is growing (write operations > 100ms)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+  - name: CPU rules
+    rules:
+    - alert: HostHighCpuLoad
+      expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[15m])) * 100) > 95
+      for: 15m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Host high CPU load (instance {{ $labels.instance }})"
+        description: "CPU load is > 95%\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+  - name: Memory rules
+    rules:
+    - alert: HostOomKillDetected
+      expr: increase(node_vmstat_oom_kill[5m]) > 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Host OOM kill detected (instance {{ $labels.instance }})"
+        description: "OOM kill detected\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: HostOutOfMemory
+      expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 10
+      for: 15m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Host out of memory (instance {{ $labels.instance }})"
+        description: "Node memory is filling up (< 10% left)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: HostSwapIsFillingUp
+      expr: (1 - (node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes)) * 100 > 80
+      for: 5m
+      labels:
+        severity: info
+      annotations:
+        summary: "Host swap is filling up (instance {{ $labels.instance }})"
+        description: "Swap is filling up (>80%)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+  # - name: Misc rules
+  #   rules:
+  #   - alert: HostSystemdServiceCrashed
+  #     expr: node_systemd_unit_state{state="failed"} == 1
+  #     for: 5m
+  #     labels:
+  #       severity: warning
+  #     annotations:
+  #       summary: "Host SystemD service crashed (instance {{ $labels.instance }})"
+  #       description: "SystemD service crashed\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"

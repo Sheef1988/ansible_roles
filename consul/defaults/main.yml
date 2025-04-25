@@ -1,0 +1,48 @@
+---
+# defaults file for ansible-role-consul
+
+consul_version: 1.8.3-2
+consul_hashi_repo_enabled: True
+consul_nodename: "{{ ansible_nodename }}"
+consul_datadir: /opt/consul
+consul_confdir: /etc/consul.d
+consul_domain: consul
+consul_datacenter: dtc
+consul_ip: "{{ ansible_default_ipv4.address }}"
+consul_http_port: 8500
+consul_dns_port: 8600
+consul_serf_lan_port: 8301
+consul_serf_wan_port: 8302
+consul_rpc_port: 8300
+consul_node_role: client
+consul_ui: false
+consul_ansible_group: consul-server
+consul_enabled: true
+consul_telemetry_prometheus_retention_time: 1h
+consul_telemetry_disable_hostname: True
+consul_services: []
+# Example:
+# consul_services:
+#   - name: node-exporter
+#     id: "{{ ansible_hostname }}-node-exporter"
+#     port: 9100
+#     address: "{{ ansible_default_ipv4.address }}"
+#     tags:
+#       - node-exporter
+#       - devops
+#     meta:
+#       - key: meta1
+#         value: value1
+#       - key: meta2
+#         value: value2
+#     tcp_checks:
+#       - name: "node_exporter tcp check"
+#         tcp: "localhost:9100"
+#         interval: "30s"
+#         timeout: "2s"
+#     http_checks:
+#       - name: "node_exporter on port 9100"
+#         http: "http://localhost:9100/metrics"
+#         tls_skip_verify: true
+#         interval: "30s"
+#         timeout: "2s"

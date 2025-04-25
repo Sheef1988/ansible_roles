@@ -1,0 +1,28 @@
+groups:
+  - name: MongoDB rules
+    rules:
+    - alert: MongodbDown
+      expr: mongodb_up == 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: MongoDB {{ $labels.instance }} Down
+        description: "MongoDB instance {{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minutes."
+
+    - alert: MongodbNumberCursorsOpen
+      expr: mongodb_ss_metrics_cursor_open{csr_type="total"} > 1000
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: MongoDB number cursors open (instance {{ $labels.instance }})
+        description: "Too many cursors opened by MongoDB for clients (> 1k)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+    - alert: MongodbPrimaryChanged
+      expr:  max by (job) (changes(mongodb_mongod_replset_member_election_date{job="mongodb_exporter"}[2m])) > 0
+      labels:
+        severity: info
+      annotations:
+        summary: MongoDB Primary has been changed (instance {{ $labels.instance }})
+        description: "MongoDB Primary has been changed within 2 min {{ $value }} times\n  LABELS = {{ $labels }}"

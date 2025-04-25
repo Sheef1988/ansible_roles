@@ -1,0 +1,20 @@
+---
+# defaults file for ansible-role-vault-agent
+
+vault_version: 1.12.0-1
+vault_server_address: "http://192.168.1.35:8200"
+vault_agent_address: "127.0.0.1:{{ vault_agent_port }}"
+vault_agent_port: 8200
+vault_tls_disable: true
+vault_dir: /opt/vault
+vault_secret_id_remove: false
+vault_cache_enabled: true
+vault_role_id: changeme
+vault_secret_id: changeme
+vault_role_id_file_path: "{{ vault_dir }}/role-id"
+vault_secret_id_file_path: "{{ vault_dir }}/secret-id"
+vault_token_path: "{{ vault_dir }}/.vault-token"
+vault_enabled: true
+vault_num_retries: 10
+vault_max_backoff: "300m"
+vault_min_backoff: "30s"

@@ -1,0 +1,10 @@
+openstack_user: stack
+openstack_password: "secret"
+host_ip: "{{ ansible_default_ipv4.address }}"
+public_interface: "eth0"
+floating_range: "192.168.1.0/24"
+public_gateway: "192.168.1.1"
+floating_pool_start: "192.168.1.100"
+floating_pool_end: "192.168.1.200"
+image_url: "https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img"
+

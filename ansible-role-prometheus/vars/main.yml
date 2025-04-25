@@ -1,0 +1,5 @@
+---
+prometheus_download_url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+prometheus_exec_command: "{{ prometheus_dir }}/prometheus --config.file={{ prometheus_etcdir }}/prometheus.yml \ 
+                          --storage.tsdb.path={{ prometheus_datadir }} \ 
+                          --storage.tsdb.retention.time={{ prometheus_storage_tsdb_retention }}"

@@ -1,0 +1,30 @@
+---
+
+- name: Создать директории под GitLab
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  loop:
+    - "{{ gitlab_config_dir }}"
+    - "{{ gitlab_logs_dir }}"
+    - "{{ gitlab_data_dir }}"
+
+- name: Запустить контейнер GitLab
+  docker_container:
+    name: "{{ gitlab_container_name }}"
+    image: "{{ gitlab_image }}"
+    restart_policy: always
+    ports:
+      - "{{ gitlab_external_port }}:{{ gitlab_internal_port }}"
+      - "{{ gitlab_ssh_port }}:22"
+    volumes:
+      - "{{ gitlab_config_dir }}:/etc/gitlab"
+      - "{{ gitlab_logs_dir }}:/var/log/gitlab"
+      - "{{ gitlab_data_dir }}:/var/opt/gitlab"
+    env:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://192.168.56.108:{{ gitlab_external_port }}'
+        gitlab_rails['gitlab_shell_ssh_port'] = {{ gitlab_ssh_port }}

@@ -1,0 +1,39 @@
+# tasks/configure_maas.yml
+---
+- name: Initialize MAAS region and rack
+  command:
+    cmd: >
+      sudo maas init region+rack
+      --maas-url {{ maas_url }}
+      --database-uri maas-test-db:///
+  become: yes
+
+- name: Create MAAS admin user
+  command:
+    cmd: >
+      sudo maas createadmin
+      --username {{ maas_admin_username }}
+      --password {{ maas_admin_password }}
+      --email {{ maas_admin_email }}
+  become: yes
+
+#- name: Create MAAS subnet with DHCP (via MAAS API)
+#  uri:
+#    url: "{{ maas_url }}/api/2.0/networks/"
+#    method: POST
+#    headers:
+#      Authorization: "Bearer {{ maas_api_key }}"
+#      Content-Type: "application/json"
+#    body: |
+#      {
+#        "subnet": "{{ maas_network_subnet }}",
+#        "gateway": "{{ maas_network_gateway }}",
+#        "dns_servers": ["8.8.8.8", "8.8.4.4"],
+#        "dhcp_start_ip": "{{ dhcp_start_ip }}",
+#        "dhcp_end_ip": "{{ dhcp_end_ip }}",
+#        "dhcp_enabled": true
+#      }
+#    body_format: json
+#    status_code: 201
+#  become: yes
+

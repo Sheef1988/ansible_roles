@@ -1,0 +1,1 @@
+consul_servers: "{{ groups[consul_ansible_group] | default(['platform-1-consul-1', 'platform-1-consul-2', 'platform-1-consul-3']) }}"

@@ -1,0 +1,26 @@
+---
+# defaults file for ansible-role-opensearch-dashboards
+vault_url: "{{lookup('ansible.builtin.file', 'vault_url.txt') }}"
+vault_token: "{{lookup('ansible.builtin.file', 'vault_token.txt') }}"
+opensearch_admin_password_creds: "{{ lookup('hashi_vault', 'secret=secret/{{ project_code }}/{{ stand_code }}/opensearch/custom/opensearch_admin_password token={{ vault_token }} url={{ vault_url }}') }}"
+
+
+opensearch_admin_password: '{{ opensearch_admin_password_creds.password }}'
+dashboards_version: 1.2.0
+dashboards_user: opensearch
+dashboards_path_install: /usr/share/opensearch-dashboards
+dashboards_os_port: 9200
+dashboards_server_port: 5601
+dashboards_server_host: "{{ ansible_default_ipv4.address }}"
+dashboards_server_name: DTC
+opensearch_ansible_group: opensearch
+dashboards_os_username: kibanaserver
+dashboards_os_hosts: |-
+        {% for host in groups[opensearch_ansible_group] -%}
+          https://{{ host }}:{{ dashboards_os_port }}{% if not loop.last %}","{% endif %}
+        {%- endfor %}
+
+##Openid
+dashboards_openid_enabled: True
+dashboards_base_redirect_url: http://logs.prod.platform.tatar.ru
+dashboards_connect_url: https://sso.platform.tatar.ru/auth/realms/tatar.ru/.well-known/openid-configuration

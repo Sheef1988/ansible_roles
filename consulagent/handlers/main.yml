@@ -1,0 +1,28 @@
+---
+# handlers file for ansible-role-consul
+
+- name: Ensure consul service restarted
+  systemd:
+    name: consul
+    state: restarted
+    enabled: true
+  listen: restart consul
+  when: consul_enabled
+
+- name: Ensure consul service reloaded
+  systemd:
+    name: consul
+    state: reloaded
+    enabled: true
+  listen: reload consul
+  when: consul_enabled
+
+- name: Ensure firewalld service reloaded
+  systemd:
+    name: firewalld
+    state: reloaded
+  listen: reload firewalld
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes

@@ -1,0 +1,38 @@
+---
+# defaults file for ansible-role-opensearch
+opensearch_version: 1.2.2
+opensearch_cluster_name: dtc
+opensearch_user: opensearch
+opensearch_path_data: /var/lib/opensearch
+opensearch_path_logs: /var/log/opensearch
+opensearch_path_install: /usr/share/opensearch
+opensearch_path_conf: /etc/opensearch
+opensearch_http_port: 9200
+opensearch_master_ansible_group: opensearch
+opensearch_data_ansible_group: ""
+opensearch_node_master: True
+opensearch_node_data: True
+opensearch_jvm_xms: 4g
+opensearch_jvm_xmx: 4g
+opensearch_user: opensearch
+opensearch_admin_password: admin
+opensearch_java_home: /usr/lib/jvm/jre-openjdk
+
+## LDAP settings
+opensearch_ldap_enabled: False
+opensearch_ldap_http_enabled: True
+opensearch_ldap_transport_enabled: True
+opensearch_ldap_ssl_enabled: False
+opensearch_ldap_start_tls_enabled: False
+opensearch_ldap_ssl_client_auth_enabled: False
+opensearch_ldap_verify_hostnames: False
+opensearch_ldap_hosts:
+  - platform-1-freeipa-1:389
+opensearch_ldap_bind_dn: "uid=system,cn=sysaccounts,cn=etc,dc=devops,dc=platform,dc=tatar,dc=ru"
+opensearch_ldap_bind_pass: bindpassword
+opensearch_ldap_userbase: "cn=users,cn=accounts,dc=devops,dc=platform,dc=tatar,dc=ru"
+opensearch_ldap_usersearch: "(uid={0})"
+opensearch_ldap_username_attribute: uid
+
+# OIDC configuration (see README.md for example) 
+opensearch_openid_auth_domain:

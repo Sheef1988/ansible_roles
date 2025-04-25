@@ -1,0 +1,17 @@
+# tasks/main.yml
+---
+- name: Install and configure snapd
+  include_tasks: install_snapd.yml
+
+- name: Install KVM and related packages
+  include_tasks: install_kvm.yml
+
+- name: Install MAAS and required dependencies
+  include_tasks: install_maas.yml
+
+- name: Configure MAAS (Initialize, create admin, and configure subnet)
+  include_tasks: configure_maas.yml
+
+#- name: Configure KVM to create VMs locally
+#  include_tasks: configure_kvm.yml
+

@@ -1,0 +1,14 @@
+[Unit]
+Description=Vault
+Documentation=https://www.vaultproject.io/docs/
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/vault server -config=/etc/vault.d/vault.hcl
+Restart=on-failure
+User=vault
+Group=vault
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

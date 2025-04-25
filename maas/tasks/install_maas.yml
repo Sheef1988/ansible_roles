@@ -1,0 +1,12 @@
+# tasks/install_maas.yml
+- name: Install MAAS
+  snap:
+    name: maas
+    channel: "{{ maas_snap_version }}"
+    state: present
+
+- name: Install MAAS test database
+  snap:
+    name: maas-test-db
+    state: present
+

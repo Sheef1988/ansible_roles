@@ -1,0 +1,74 @@
+- name: Set harbor_hostname to IP of enp0s8
+  ansible.builtin.set_fact:
+    harbor_hostname: "{{ ansible_enp0s8.ipv4.address }}"
+
+- name: Обновление системы
+  apt:
+    update_cache: yes
+    upgrade: dist
+
+- name: Установка зависимостей
+  apt:
+    name:
+      - docker.io
+      - docker-compose
+      - unzip
+      - curl
+    state: present
+
+- name: Включение и запуск docker
+  systemd:
+    name: docker
+    enabled: yes
+    state: started
+
+- name: Создание директории для сертификатов
+  file:
+    path: "{{ harbor_cert_dir }}"
+    state: directory
+    mode: 0755
+
+- name: Генерация самоподписанного сертификата
+  command: >
+    openssl req -newkey rsa:2048 -nodes -keyout {{ harbor_key }}
+    -x509 -days 365 -out {{ harbor_cert }}
+    -subj "/CN={{ harbor_hostname }}"
+  args:
+    creates: "{{ harbor_cert }}"
+
+- name: Скачивание Harbor
+  get_url:
+    url: "{{ harbor_url }}"
+    dest: "/tmp/{{ harbor_installer }}"
+
+- name: Распаковка Harbor
+  unarchive:
+    src: "/tmp/{{ harbor_installer }}"
+    dest: /opt/
+    remote_src: yes
+
+- name: Удаление оригинального шаблона harbor.yml.tmpl
+  file:
+    path: /opt/harbor/harbor.yml.tmpl
+    state: absent
+
+- name: Удаление старого harbor.yml (если вдруг был)
+  file:
+    path: /opt/harbor/harbor.yml
+    state: absent
+
+- name: Копирование нашего сгенерированного harbor.yml
+  template:
+    src: harbor.yml.j2
+    dest: /opt/harbor/harbor.yml
+
+#- name: Копирование конфигурации harbor.yml
+#  template:
+#    src: harbor.yml.j2
+#    dest: /opt/harbor/harbor.yml
+
+- name: Установка Harbor с Trivy
+  command: "./install.sh --with-trivy"
+  args:
+    chdir: /opt/harbor/
+

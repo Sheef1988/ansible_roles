@@ -1,0 +1,33 @@
+---
+# vars file for ansible-role-opensearch
+vault_url: "{{lookup('ansible.builtin.file', '~/vault/{{stand_code}}/url.txt') }}"
+vault_token: "{{lookup('ansible.builtin.file', '~/vault/{{stand_code}}/token.txt') }}"
+certificates_creds: "{{ lookup('hashi_vault', 'secret=secret/{{ project_code }}/{{ stand_code }}/opensearch/custom/certificates token={{ vault_token }} url={{ vault_url }}') }}"
+opensearch_admin_password: "{{ lookup('hashi_vault', 'secret=secret/{{ project_code }}/{{ stand_code }}/opensearch/custom/opensearch_admin_password token={{ vault_token }} url={{ vault_url }}').password }}"
+
+## certificates from vault
+certificates:
+- name: 'admin-key.pem'
+  content: "{{ certificates_creds.adminkeypem }}"
+- name: 'admin.pem' 
+  content: "{{ certificates_creds.adminpem }}"
+- name: 'node-key.pem' 
+  content: "{{ certificates_creds.nodekeypem }}"
+- name: 'node.pem'
+  content: "{{ certificates_creds.nodepem }}"
+- name: 'root-ca.pem'
+  content: "{{ certificates_creds.rootcapem }}"
+  
+opensearch_release: "https://repository.int.platform.tatar.ru/repository/platform-raw-hosted-public/opensearch/opensearch-{{ opensearch_version }}-linux-x64.tar.gz"
+opensearch_masters: "{{ groups[opensearch_masters_ansible_group] }}"
+opensearch_data: "{{ groups[opensearch_data_ansible_group] | default([]) }}"
+opensearch_security_tools: "{{ opensearch_path_install }}/opensearch-{{ opensearch_version }}/plugins/opensearch-security/tools"
+opensearch_passwd_apply_cmd: "{{ opensearch_security_tools }}/securityadmin.sh \
+                                -h {{ ansible_hostname }} \
+                                -cd {{ opensearch_security_tools }}/../securityconfig/ \
+                                -icl -nhnv -cacert {{ opensearch_path_install }}/opensearch-{{ opensearch_version }}/config/root-ca.pem \
+                                -cert {{ opensearch_path_install }}/opensearch-{{ opensearch_version }}/config/admin.pem \
+                                -key {{ opensearch_path_install }}/opensearch-{{ opensearch_version }}/config/admin-key.pem"
+                                
+opensearch_lock_file: "{{ opensearch_path_conf }}/internal_users.lock"
+

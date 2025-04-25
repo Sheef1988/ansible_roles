@@ -1,0 +1,16 @@
+---
+# tasks file for ansible-role-opensearch
+- name: Include tune tasks
+  include_tasks: tune.yml
+
+- name: Include opensearch tasks
+  include_tasks: opensearch.yml
+
+#- name: Include firewall tasks
+#  include_tasks: firewall.yml
+
+- name: Force all notified handlers to run at this point
+  meta: flush_handlers
+
+- name: Include accounts tasks
+  include_tasks: accounts.yml

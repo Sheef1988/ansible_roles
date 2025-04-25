@@ -1,0 +1,37 @@
+vault {
+        address = "{{ vault_server_address }}"
+        retry {
+          num_retries = {{ vault_num_retries }}
+        }
+}
+
+
+auto_auth {
+        method "approle" {
+            mount_path = "auth/approle"
+            config = {
+                role_id_file_path = "{{ vault_role_id_file_path }}"
+                secret_id_file_path = "{{ vault_secret_id_file_path }}"
+                remove_secret_id_file_after_reading = {{ vault_secret_id_remove | bool | lower }}
+            }
+            max_backoff = "{{ vault_max_backoff }}"
+            min_backoff = "{{ vault_min_backoff }}"
+        }
+
+        sink "file" {
+                config = {
+                        path = "{{ vault_token_path }}"
+                }
+        }
+}
+
+{% if vault_cache_enabled -%}
+cache {
+        use_auto_auth_token = true
+}
+{% endif %}
+
+listener "tcp" {
+        address = "{{ vault_agent_address }}"
+        tls_disable = {{ vault_tls_disable | bool | lower }}
+}
