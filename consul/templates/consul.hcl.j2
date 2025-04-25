@@ -1,0 +1,38 @@
+{% if consul_ui %}
+ui = true
+addresses = {
+  http = "0.0.0.0"
+}
+{% endif %}
+advertise_addr = "{{ consul_ip }}"
+
+bind_addr = "{{ consul_ip }}"
+{% if consul_node_role == 'server' %}
+bootstrap_expect = {{ consul_servers|length }}
+{% endif %}
+data_dir = "{{ consul_datadir }}"
+
+datacenter = "{{ consul_datacenter }}"
+
+domain = "{{ consul_domain }}"
+
+node_name = "{{ consul_nodename }}"
+
+ports = {
+  dns = {{ consul_dns_port }}
+  http = {{ consul_http_port }}
+  serf_lan = {{ consul_serf_lan_port }}
+  serf_wan = {{ consul_serf_wan_port }}
+  server = {{ consul_rpc_port }}
+}
+
+retry_join = {{ consul_servers | replace("'", '"' ) }} 
+
+server = {{ "true" if consul_node_role != 'client' else "false" }}
+
+{% if consul_node_role == 'server' %}
+telemetry = {
+  prometheus_retention_time = "{{ consul_telemetry_prometheus_retention_time }}"
+  disable_hostname = {{ consul_telemetry_disable_hostname | bool | lower }}
+}
+{% endif %}

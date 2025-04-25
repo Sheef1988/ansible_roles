@@ -1,0 +1,121 @@
+---
+# tasks file for ansible-role-vault-agent
+#- name: Install and configure vault agent
+#  block:
+#    - name: Install Vault
+#      ansible.builtin.dnf:
+#        name: vault-{{ vault_version }}
+#        state: installed
+#      notify:
+#        - restart vault
+
+
+    - name: Copy Vault binary from role's files folder
+      copy:
+        src: vault
+        dest: /usr/bin/vault
+        mode: '0755'
+
+    - name: Verify Vault installation
+      command: /usr/bin/vault --version
+      register: vault_version_output
+      changed_when: false
+
+    - name: Create Vault systemd service
+      template:
+        src: vault.service.j2
+        dest: /etc/systemd/system/vault.service
+      notify:
+        - reload systemd
+
+    - name: Enable and start Vault service
+      systemd:
+        name: vault
+        enabled: true
+        state: started
+
+    - name: Create vault group
+      group:
+        name: vault
+        state: present
+
+    - name: Create vault user
+      user:
+        name: vault
+        group: vault
+        state: present
+
+    - name: Ensure vault directory exists
+      ansible.builtin.file:
+        path: "{{ vault_dir }}"
+        state: directory
+        owner: vault
+        group: vault
+        mode: '0755'
+
+    - name: Create overrides dir
+      ansible.builtin.file:
+        path: /etc/systemd/system/vault.service.d/
+        owner: root
+        group: root
+        mode: "0755"
+        state: directory
+
+    - name: Create override.conf
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/vault.service.d/override.conf
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          [Service]
+          ProtectSystem=true
+          ExecStart=
+          ExecStart=/usr/bin/vault agent -config=/etc/vault.d/vault.hcl
+      notify: restart vault
+
+    - name: Copy role-id and secret-id
+      ansible.builtin.copy:
+        dest: "{{ item.dest }}"
+        owner: vault
+        group: vault
+        mode: '0640'
+        content: "{{ item.content }}"
+      loop:
+        - { dest: '{{ vault_role_id_file_path }}', content: '{{ vault_role_id }}' }
+        - { dest: '{{ vault_secret_id_file_path }}', content: '{{ vault_secret_id }}' }
+      no_log: true
+      notify: restart vault
+
+    - name: Ensure Vault config directory exists
+      ansible.builtin.file:
+        path: /etc/vault.d
+        state: directory
+        owner: vault
+        group: vault
+        mode: '0755'
+
+    - name: Copy config template
+      ansible.builtin.template:
+        src: vault.hcl.j2
+        dest: /etc/vault.d/vault.hcl
+        owner: vault
+        group: vault
+        mode: '0644'
+      notify:
+        - reload vault
+
+    - name: Add firewalld rule for vault agent port
+      ansible.posix.firewalld:
+        port: "{{ vault_agent_port }}/tcp"
+        permanent: true
+        state: enabled
+      notify: reload firewalld
+
+    - name: Force all notified handlers to run at this point
+      meta: flush_handlers
+#  when:
+#    - "'vault' not in inventory_hostname and 'secret' not in inventory_hostname"
+#  tags:
+#    - system
+#    - vault-agent

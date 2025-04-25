@@ -1,0 +1,57 @@
+---
+
+- name: Add firewalld rule for consul HTTP port
+  ansible.posix.firewalld:
+    port: "{{ consul_http_port }}/tcp"
+    permanent: true
+    state: enabled
+  notify: reload firewalld
+
+- name: Add firewalld rule for consul DNS port udp
+  ansible.posix.firewalld:
+    port: "{{ consul_dns_port }}/udp"
+    permanent: true
+    state: enabled
+  notify: reload firewalld
+
+- name: Add firewalld rule for consul DNS port tcp
+  ansible.posix.firewalld:
+    port: "{{ consul_dns_port }}/tcp"
+    permanent: true
+    state: enabled
+  notify: reload firewalld
+
+- name: Add firewalld rule for consul LAN Serf port udp
+  ansible.posix.firewalld:
+    port: "{{ consul_serf_lan_port }}/udp"
+    permanent: true
+    state: enabled
+  notify: reload firewalld
+
+- name: Add firewalld rule for consul LAN Serf port tcp
+  ansible.posix.firewalld:
+    port: "{{ consul_serf_lan_port }}/tcp"
+    permanent: true
+    state: enabled
+  notify: reload firewalld
+
+- name: Add firewalld rule for consul WAN Serf port udp
+  ansible.posix.firewalld:
+    port: "{{ consul_serf_wan_port }}/udp"
+    permanent: true
+    state: enabled
+  notify: reload firewalld
+
+- name: Add firewalld rule for consul WAN Serf port tcp
+  ansible.posix.firewalld:
+    port: "{{ consul_serf_wan_port }}/tcp"
+    permanent: true
+    state: enabled
+  notify: reload firewalld
+
+- name: Add firewalld rule for consul RPC port
+  ansible.posix.firewalld:
+    port: "{{ consul_rpc_port }}/tcp"
+    permanent: true
+    state: enabled
+  notify: reload firewalld

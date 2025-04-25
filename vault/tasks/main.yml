@@ -1,0 +1,94 @@
+---
+# tasks file for ansible-role-vault
+
+#- name: Install Vault from DNF repository
+#  dnf:
+#    name: vault
+#    state: present
+
+- name: Copy Vault binary from role's files folder
+  copy:
+    src: vault
+    dest: /usr/local/bin/vault
+    mode: '0755'
+
+- name: Verify Vault installation
+  command: /usr/local/bin/vault --version
+  register: vault_version_output
+  changed_when: false
+
+- name: Create Vault systemd service
+  template:
+    src: vault.service.j2
+    dest: /etc/systemd/system/vault.service
+  notify:
+    - reload systemd
+
+- name: Enable and start Vault service
+  systemd:
+    name: vault
+    enabled: true
+    state: started
+
+
+#- name: Download Hashicorp repo
+#  get_url:
+#    url: "{{ vault_repo_url }}"
+#    dest: /etc/yum.repos.d/hashicorp.repo
+#    owner: root
+#    group: root
+#    mode: '0644'
+
+#- name: Install Vault
+#  dnf:
+#    name: vault-{{ vault_version }}
+#    state: installed
+#  notify:
+#    - restart vault
+
+- name: Create vault group
+  group:
+    name: vault
+    state: present
+
+- name: Create vault user
+  user:
+    name: vault
+    group: vault
+    state: present
+
+- name: Ensure data directory exists
+  file:
+    path: "{{ vault_raft_data_path }}"
+    state: directory
+    owner: vault
+    group: vault
+    mode: '0755'
+
+- name: Ensure vault.d directory exists
+  file:
+    path: /etc/vault.d
+    state: directory
+    owner: vault
+    group: vault
+    mode: '0755'
+
+- name: Copy config template
+  template:
+    src: vault.hcl.j2
+    dest: /etc/vault.d/vault.hcl
+    owner: vault
+    group: vault
+    mode: '0644'
+  notify:
+    - restart vault
+
+- name: Include firewall tasks
+  include_tasks: firewall.yml
+
+- name: Force all notified handlers to run at this point
+  meta: flush_handlers
+
+- name: Include unseal tasks
+  include_tasks: unseal.yml
+  when: vault_unseal

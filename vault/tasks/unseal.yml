@@ -1,0 +1,49 @@
+---
+
+- name: Install python3-pip
+  dnf:
+    name: python3-pip
+    state: present
+
+- name: Upgrade pip
+  pip:
+    name: pip
+    extra_args: --upgrade
+    executable: /usr/bin/pip3
+
+- name: Install hvac
+  pip:
+    name: hvac
+    state: present
+    executable: /usr/bin/pip3
+
+- name: Vault init
+  hashivault_init:
+    secret_shares: "{{ vault_secret_shares }}"
+    secret_threshold: "{{ vault_secret_threshold }}"
+    url: "{{ vault_api_addr }}"
+  run_once: true
+  register: vault_init
+
+- block:
+  - set_fact:
+      vault_keys: "{{ vault_init['keys'] | join(' ') }}"
+
+  - name: Unseal Vault
+    hashivault_unseal:
+      keys: "{{ vault_keys }}"
+      url: "{{ vault_api_addr }}"
+      
+  - name: Create Secret engine kv
+    hashivault_secret_engine:
+      name: secret
+      backend: kv
+      description: storage for K/V secrets
+      url: "{{ vault_api_addr }}"
+      token: "{{ vault_init['root_token'] }}"
+    run_once: true
+
+  - debug:
+      msg: "{{ vault_init }}"
+    run_once: true
+  when: vault_init.changed == true

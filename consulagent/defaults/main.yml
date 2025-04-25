@@ -1,0 +1,65 @@
+---
+# defaults file for ansible-role-consul
+
+consul_version: 1.20.2-1.el7
+consul_hashi_repo_enabled: True
+consul_nodename: "{{ ansible_nodename }}"
+consul_datadir: /opt/consul
+consul_confdir: /etc/consul.d
+consul_domain: consul
+consul_datacenter: dtc
+consul_ip: "{{ ansible_default_ipv4.address }}"
+consul_http_port: 8500
+consul_dns_port: 8600
+consul_serf_lan_port: 8301
+consul_serf_wan_port: 8302
+consul_rpc_port: 8300
+consul_node_role: client
+consul_ui: false
+consul_ansible_group: consul-server
+consul_enabled: true
+consul_telemetry_prometheus_retention_time: 1h
+consul_telemetry_disable_hostname: True
+consul_services:
+#  - name: "nginx"
+#    id: "{{ ansible_hostname }}-nginx"
+#    port: 80
+#    address: "{{ ansible_default_ipv4.address }}"
+#    tags:
+#     - web
+#      - front
+#    meta:
+#      - key: environment
+#        value: production
+#    tcp_checks:
+#      - name: "nginx tcp check"
+#        tcp: "localhost:80"
+#        interval: "30s"
+#        timeout: "2s"
+#    http_checks:
+#      - name: "nginx http check"
+#        http: "http://localhost:80"
+#        tls_skip_verify: true
+#        interval: "30s"
+#        timeout: "2s"
+- name: "vault"
+  id: "{{ ansible_hostname }}-vault"
+  port: 8200
+  address: "{{ ansible_default_ipv4.address }}"
+  tags:
+    - vault
+    - secret-management
+  meta:
+    - key: environment
+      value: production
+  tcp_checks:
+    - name: "vault tcp check"
+      tcp: "localhost:8200"
+      interval: "30s"
+      timeout: "2s"
+  http_checks:
+    - name: "vault http check"
+      http: "http://localhost:8200/v1/sys/seal-status"
+      tls_skip_verify: true
+      interval: "30s"
+      timeout: "2s"

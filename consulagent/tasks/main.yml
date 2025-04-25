@@ -1,0 +1,66 @@
+---
+# tasks file for ansible-role-consul
+
+- name: Обновить все пакеты с помощью dnf
+  ansible.builtin.command: dnf update -y
+
+- name: Установить Consul через dnf
+  ansible.builtin.command: "dnf install -y consul-{{ consul_version }}"
+  args:
+    creates: "/usr/bin/consul"
+  notify: reload consul
+
+- name: Ensure that directories exist
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: consul
+    group: consul
+    mode: "{{ item.perms }}"
+  loop:
+    - { path: '{{ consul_datadir }}', perms: '0755' }
+    - { path: '{{ consul_confdir }}', perms: '0775' }
+
+
+- name: Copy config template
+  template:
+    src: consul.hcl.j2
+    dest: /etc/consul.d/consul.hcl
+    owner: consul
+    group: consul
+    mode: '0664'
+  notify:
+    - reload consul
+
+- name: Register services
+  template:
+    src: services.hcl.j2
+    dest: /etc/consul.d/services.hcl
+    owner: consul
+    group: consul
+    mode: '0644'
+  when: consul_services|length > 0
+  notify:
+    - reload consul
+
+- name: Include firewall tasks
+  include_tasks: firewall.yml
+- name: Create systemd unit file for Consul
+  template:
+    src: consul.service.j2
+    dest: /etc/systemd/system/consul.service
+  notify:
+    - Reload systemd
+
+- name: Reload systemd to pick up new consul service
+  systemd:
+    daemon_reload: yes
+
+- name: Enable and start Consul service
+  systemd:
+    name: consul
+    enabled: yes
+    state: started
+
+- name: Force all notified handlers to run at this point
+  meta: flush_handlers
