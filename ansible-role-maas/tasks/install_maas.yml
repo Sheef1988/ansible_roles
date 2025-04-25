@@ -1,0 +1,21 @@
+---
+- name: Обновляем пакеты
+  apt:
+    update_cache: yes
+    upgrade: yes
+
+- name: Устанавливаем snapd
+  apt:
+    name: snapd
+    state: present
+
+- name: Устанавливаем MAAS через snap
+  command: snap install maas --channel=candidate --classic
+  args:
+    creates: /snap/bin/maas
+
+- name: Устанавливаем bridge-utils
+  apt:
+    name: bridge-utils
+    state: present
+

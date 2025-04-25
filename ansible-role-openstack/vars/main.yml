@@ -1,0 +1,26 @@
+ubuntu_version: "22.04"
+devstack_repo: "https://opendev.org/openstack/devstack"
+devstack_dir: "/opt/stack/devstack"
+openstack_services: 
+  - g-api
+  - g-reg
+  - key
+  - n-api
+  - n-cond
+  - n-sch
+  - n-novnc
+  - n-cauth
+  - n-cell
+  - n-obj
+  - s-proxy
+  - s-account
+  - s-container
+  - s-object
+  - placement-api
+  - neutron
+  - q-svc
+  - q-agt
+  - q-dhcp
+  - q-l3
+  - q-meta
+

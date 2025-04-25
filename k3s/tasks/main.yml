@@ -1,0 +1,13 @@
+---
+- name: Обновление системы
+  import_tasks: update.yml
+
+- name: Установка Docker
+  import_tasks: docker.yml
+
+- name: Установка K3s
+  import_tasks: k3s.yml
+
+- name: Установка Helm
+  import_tasks: helm.yml
+

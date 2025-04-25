@@ -1,0 +1,6 @@
+---
+- name: Перезапуск nexus
+  systemd:
+    name: nexus
+    state: restarted
+

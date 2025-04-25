@@ -1,0 +1,12 @@
+# defaults/main.yml
+gitlab_external_url: "http://192.168.56.108:8081"
+gitlab_hostname: "git.example.com"
+gitlab_smtp_enabled: true
+gitlab_smtp_address: "mail.example.com"
+gitlab_smtp_port: 587
+gitlab_smtp_user_name: "git@example.com"
+gitlab_smtp_password: "password"
+gitlab_smtp_domain: "example.com"
+gitlab_email_from: "git@example.com"
+gitlab_email_display_name: "GitLab"
+

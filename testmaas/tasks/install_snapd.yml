@@ -1,0 +1,24 @@
+# tasks/install_snapd.yml
+---
+- name: Update apt package cache
+  apt:
+    update_cache: yes
+
+- name: Install snapd
+  apt:
+    name: snapd
+    state: present
+
+- name: Ensure snapd service is running and enabled
+  service:
+    name: snapd
+    state: started
+    enabled: yes
+
+#- name: Reboot the system to apply changes (if necessary)
+#  reboot:
+#    msg: "Rebooting to apply snapd changes"
+#    reboot_timeout: 300
+#    test_command: whoami
+#    when: ansible_facts['distribution_version'] is version('20.04', '>=')
+

@@ -1,0 +1,34 @@
+---
+- name: Install GitLab dependencies
+  apt:
+    name:
+      - curl
+      - openssh-server
+      - ca-certificates
+      - tzdata
+    state: present
+    update_cache: yes
+
+- name: Add GitLab official package repository
+  shell: |
+    curl https://packages.gitlab.com/gpg.key | sudo apt-key add -
+    sudo add-apt-repository "deb https://packages.gitlab.com/gitlab/gitlab-ce/ubuntu/ focal main"
+  become: yes
+
+- name: Install GitLab CE
+  apt:
+    name: gitlab-ce
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Configure gitlab.rb using template
+  template:
+    src: gitlab.rb.j2
+    dest: /etc/gitlab/gitlab.rb
+  become: yes
+
+- name: Reconfigure GitLab
+  command: gitlab-ctl reconfigure
+  become: yes
+

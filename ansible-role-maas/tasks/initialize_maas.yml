@@ -1,0 +1,21 @@
+---
+- name: Инициализация MAAS с базой данных
+  command: >
+    maas init region+rack --database-uri "postgres://{{ maas_db_user }}:{{ maas_db_password }}@localhost/{{ maas_db_name }}"
+  args:
+    creates: /var/lib/maas/maas_configured
+
+- name: Создание администратора MAAS
+  command: maas createadmin --username={{ maas_admin_user }} --password={{ maas_admin_password }} --email={{ maas_admin_email }}
+  register: maas_admin
+  changed_when: "'MAAS is ready' in maas_admin.stdout"
+
+- name: Перезапуск MAAS
+  systemd:
+    name: snap.maas.supervisor
+    state: restarted
+
+- name: Получение API-ключа MAAS
+  command: maas apikey --username={{ maas_admin_user }}
+  register: maas_api_key
+

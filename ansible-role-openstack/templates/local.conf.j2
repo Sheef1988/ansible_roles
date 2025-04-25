@@ -1,0 +1,14 @@
+[[local|localrc]]
+ADMIN_PASSWORD={{ openstack_password }}
+DATABASE_PASSWORD={{ openstack_password }}
+RABBIT_PASSWORD={{ openstack_password }}
+SERVICE_PASSWORD={{ openstack_password }}
+
+HOST_IP={{ host_ip }}
+FLOATING_RANGE="{{ floating_range }}"
+PUBLIC_NETWORK_GATEWAY="{{ public_gateway }}"
+Q_FLOATING_ALLOCATION_POOL="start={{ floating_pool_start }},end={{ floating_pool_end }}"
+PUBLIC_INTERFACE="{{ public_interface }}"
+
+enable_service {{ openstack_services | join(' ') }}
+

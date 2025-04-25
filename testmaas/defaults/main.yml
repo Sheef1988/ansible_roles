@@ -1,0 +1,12 @@
+# defaults/main.yml
+kvm_package: qemu-kvm, libvirt-daemon-system, bridge-utils
+maas_snap_version: "3.5"
+maas_url: "http://{{ ansible_host }}:5240/MAAS"
+maas_admin_username: "admin"
+maas_admin_password: "ubuntu"
+maas_admin_email: "example@example.com"
+maas_network_subnet: "192.168.1.0/24"
+maas_network_gateway: "192.168.1.1"
+dhcp_start_ip: "192.168.1.10"
+dhcp_end_ip: "192.168.1.200"
+maas_api_key: "av3azb7zEPXahFBWHA:vhTwy7RqWU7Hntu8dd:ZRNvUKJ5D9Lfk4KbBLndc3HmpWynJYH6"

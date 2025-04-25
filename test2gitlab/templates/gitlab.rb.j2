@@ -1,0 +1,11 @@
+external_url '{{ gitlab_external_url }}'
+gitlab_rails['gitlab_shell_ssh_port'] = {{ gitlab_ssh_port }}
+gitlab_rails['smtp_enable'] = true
+gitlab_rails['smtp_address'] = '{{ smtp_address }}'
+gitlab_rails['smtp_port'] = {{ smtp_port }}
+gitlab_rails['smtp_user_name'] = '{{ smtp_user_name }}'
+gitlab_rails['smtp_password'] = '{{ smtp_password }}'
+gitlab_rails['smtp_domain'] = '{{ smtp_domain }}'
+gitlab_rails['gitlab_email_from'] = '{{ gitlab_email_from }}'
+gitlab_rails['gitlab_email_display_name'] = '{{ gitlab_email_display_name }}'
+

@@ -1,0 +1,7 @@
+---
+- name: Установка Docker и Docker Compose
+  import_tasks: docker.yml
+
+- name: Развёртывание Gitea
+  import_tasks: gitea.yml
+

@@ -1,0 +1,13 @@
+# tasks/install_kvm.yml
+- name: Install KVM and related packages
+  apt:
+    name: "{{ kvm_package }}"
+    state: present
+    update_cache: yes
+
+- name: Enable and start libvirt service
+  service:
+    name: libvirtd
+    state: started
+    enabled: yes
+

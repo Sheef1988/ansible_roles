@@ -1,0 +1,26 @@
+- name: Создание директории /opt/gitea
+  file:
+    path: /opt/gitea
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Копирование docker-compose.yml
+  copy:
+    src: docker-compose.yml
+    dest: /opt/gitea/docker-compose.yml
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Запуск Gitea через docker compose CLI
+  command: docker compose up -d
+  args:
+    chdir: /opt/gitea
+
+#- name: Запуск Gitea через docker compose
+#  community.docker.docker_compose:
+#    project_src: /opt/gitea
+#    state: present
+#  become: true

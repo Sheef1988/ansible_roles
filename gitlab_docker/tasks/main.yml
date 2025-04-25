@@ -1,0 +1,9 @@
+---
+- name: Обновление системы
+  import_tasks: update.yml
+
+- name: Установка Docker
+  import_tasks: docker.yml
+
+- name: Установка gitlab
+  import_tasks: gitlab.yml

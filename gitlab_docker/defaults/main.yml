@@ -1,0 +1,9 @@
+gitlab_image: gitlab/gitlab-ce:latest
+gitlab_container_name: gitlab
+gitlab_external_port: 8081
+gitlab_internal_port: 80
+gitlab_ssh_port: 2222
+gitlab_config_dir: /srv/gitlab/config
+gitlab_logs_dir: /srv/gitlab/logs
+gitlab_data_dir: /srv/gitlab/data
+

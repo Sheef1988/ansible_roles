@@ -1,0 +1,5 @@
+# tasks/configure_kvm.yml
+#- name: Configure KVM to create VMs locally
+#  command:
+#    cmd: sudo maas kvm set-local
+#  become: yes

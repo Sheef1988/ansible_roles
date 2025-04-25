@@ -1,0 +1,6 @@
+---
+- name: docker
+  import_tasks: docker.yml
+
+- name: config
+  import_tasks: config.yml

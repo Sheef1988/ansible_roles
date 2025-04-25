@@ -1,0 +1,70 @@
+---
+- name: Установка зависимостей Docker
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+    update_cache: yes
+
+- name: Добавление GPG ключа Docker
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Добавление репозитория Docker
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+    filename: docker
+
+- name: Обновление кэша пакетов после добавления репозитория
+  apt:
+    update_cache: yes
+
+- name: Установка Docker Engine и зависимостей
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: present
+
+- name: Установка Docker Compose (плагин)
+  apt:
+    name: docker-compose-plugin
+    state: present
+
+- name: Проверка установки Docker Compose плагина
+  command: docker compose version
+  register: compose_version
+  changed_when: false
+
+#- name: Установка pip (если не установлен)
+#  apt:
+#    name: python3-pip
+#    state: present
+#    update_cache: yes
+
+#- name: Установка Docker SDK для Python
+#  pip:
+#    name: docker
+#    executable: pip3
+#
+#- name: Установка Python-модуля docker-compose
+#  pip:
+#    name: docker-compose
+#    executable: pip3
+
+#- name: Вывод версии Docker Compose
+#  debug:
+#    msg: "Docker Compose version: {{ compose_version.stdout }}"
+
+- name: Убедиться, что Docker работает
+  service:
+    name: docker
+    state: started
+    enabled: true

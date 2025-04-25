@@ -1,0 +1,13 @@
+- name: Клонирование DevStack
+  become_user: "{{ openstack_user }}"
+  git:
+    repo: "{{ devstack_repo }}"
+    dest: "{{ devstack_dir }}"
+
+- name: Создание файла local.conf
+  template:
+    src: "local.conf.j2"
+    dest: "{{ devstack_dir }}/local.conf"
+    owner: "{{ openstack_user }}"
+    mode: "0644"
+

@@ -1,0 +1,32 @@
+---
+- name: Установка зависимостей Docker
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+
+- name: Добавление GPG ключа Docker
+  shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+#  args:
+#    warn: false
+
+- name: Добавление репозитория Docker
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+    state: present
+
+- name: Установка Docker
+  apt:
+    name: docker-ce
+    state: present
+    update_cache: yes
+
+- name: Убедиться, что Docker работает
+  service:
+    name: docker
+    state: started
+    enabled: true
